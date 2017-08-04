@@ -32,7 +32,7 @@ class WwdcSession:
 
   @staticmethod
   def fromFilename(path):
-      
+
     def parseYear(s):
       year = None
       if s != None:
@@ -40,7 +40,7 @@ class WwdcSession:
         if year < 100:
           year += 2000
       return year
-    
+
     session = WwdcSession()
 
     splitPath = os.path.split(path)
@@ -81,7 +81,7 @@ class WwdcSession:
     focus = sessionJson["focus"]
     if isinstance(focus, collections.Sequence):
       session.categories.extend([x for x in focus if isinstance(x, str)])
-    
+
     images = sessionJson["images"]
     if "shelf" in images:
       session.thumbnail = images["shelf"]
@@ -136,7 +136,7 @@ def fetchSessions(year, id, exact, name=None):
 
     if year == session.year:
       score += 30
-    
+
     if id == session.id:
       score += 70
 
