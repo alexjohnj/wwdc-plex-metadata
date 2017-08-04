@@ -60,31 +60,28 @@ class WwdcSession:
     return session
 
   @staticmethod
-  def fromJson(sessionJson):
+  def fromJson(sessionJson, tracks):
+    """Construct a `WwdcSession` object from the JSON object `sessionJson`. `tracks`
+    is a dictionary mapping integer track ids onto their titles.
+
+    """
     session = WwdcSession()
-    session.year = int(sessionJson["year"])
-    session.id = int(sessionJson["id"])
+
+    yearMatches = re.findall(r"\d+", sessionJson["eventId"])
+    session.year = int(yearMatches[0]) if len(yearMatches) != 0 else -1
+
+    session.id = int(sessionJson["eventContentId"])
     session.title = sessionJson["title"]
     session.description = sessionJson["description"]
 
-    dateString = sessionJson["date"]
-    if dateString != None and dateString != session.year:
-      try:
-        session.date = parse(dateString)
-      except:
-        pass
-
-    track = sessionJson["track"]
-    if isinstance(track, str):
+    trackId = int(sessionJson["trackId"])
+    track = tracks.get(trackId)
+    if track:
       session.categories.append(track)
 
-    focus = sessionJson["focus"]
+    focus = sessionJson.get("platforms")
     if isinstance(focus, collections.Sequence):
       session.categories.extend([x for x in focus if isinstance(x, str)])
-
-    images = sessionJson["images"]
-    if "shelf" in images:
-      session.thumbnail = images["shelf"]
 
     return session
 
@@ -101,6 +98,16 @@ class WwdcSession:
 
   def getMetadataId(self):
     return "{}-{}".format(self.year, self.id)
+
+##################################################
+
+def parseEventYear(eventId):
+  matches = re.findall(r"\d+", eventId)
+  if len(matches) == 0:
+    return -1
+  else:
+    return int(matches[0])
+
 
 ##################################################
 
@@ -130,8 +137,12 @@ def fetchSessions(year, id, exact, name=None):
 
   sessions = JSON.ObjectFromURL(SOURCE_URL, cacheTime=DEFAULT_CACHE_TIME)
 
-  for sessionJson in sessions["sessions"]:
-    session = WwdcSession.fromJson(sessionJson)
+  tracks = {}
+  for track in sessions["tracks"]:
+    tracks[int(track["id"])] = track["name"]
+
+  for sessionJson in sessions["contents"]:
+    session = WwdcSession.fromJson(sessionJson, tracks)
     score = 0
 
     if year == session.year:
