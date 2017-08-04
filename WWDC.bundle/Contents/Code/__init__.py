@@ -1,7 +1,7 @@
 import collections, os, re, urllib
 from dateutil.parser import parse
 
-SOURCE_URL = "https://devimages-cdn.apple.com/wwdc-services/g7tk3guq/xhgbpyutb6wvn2xcrbcz/videos.json"
+SOURCE_URL = "https://devimages-cdn.apple.com/wwdc-services/h8a19f8f/049CCC2F-0D8A-4F7D-BAB9-2D8F5BAA7030/contents.json"
 DEFAULT_CACHE_TIME = 3600
 
 # Locate first 2 or 4 digit number as year (optional), and first 3+ digit number in filename as session id
